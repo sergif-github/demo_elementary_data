@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: elementary_postgres
+    environment:
+      POSTGRES_DB: weather
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:7
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8081:80"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  weather_ingestor:
+    build: ./ingestor
+    container_name: weather_ingestor
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: weather
+      POSTGRES_USER: weather_user
+      POSTGRES_PASSWORD: weather_pass
+      POSTGRES_PORT: 5432
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY}
+      INGEST_INTERVAL_SECONDS: 300
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

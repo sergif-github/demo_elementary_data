@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: weather_metrics
+    description: "Métricas agregadas por ciudad y hora a partir de los datos crudos"
+    columns:
+      - name: city
+        description: "Nombre de la ciudad"
+        tests:
+          - not_null
+      - name: hour
+        description: "Hora truncada del timestamp del clima"
+        tests:
+          - not_null
+      - name: avg_temp
+        description: "Temperatura media por hora"
+      - name: max_temp
+        description: "Temperatura máxima por hora"
+      - name: min_temp
+        description: "Temperatura mínima por hora"
+      - name: stddev_temp
+        description: "Desviación estándar de la temperatura por hora"
+      - name: avg_humidity
+        description: "Humedad media por hora"
+      - name: max_humidity
+        description: "Humedad máxima por hora"
+      - name: min_humidity
+        description: "Humedad mínima por hora"
+      - name: avg_pressure
+        description: "Presión atmosférica media por hora"
+      - name: avg_wind_speed
+        description: "Velocidad media del viento por hora"
+      - name: rows_count
+        description: "Número de registros que componen la agregación"

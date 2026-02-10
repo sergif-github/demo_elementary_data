@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: stg_weather_data
+    description: "Tabla limpia de datos meteorológicos"
+    columns:
+      - name: city
+        description: "Nombre de la ciudad"
+        tests:
+          - not_null
+      - name: weather_timestamp
+        description: "Momento de la medición"
+        tests:
+          - not_null
+      - name: temperature
+        description: "Temperatura en grados Celsius"
+        tests:
+          - not_null
+      - name: humidity
+        description: "Humedad relativa en porcentaje"
+        tests:
+          - not_null
+      - name: pressure
+        description: "Presión atmosférica en hPa"
+        tests:
+          - not_null
+      - name: wind_speed
+        description: "Velocidad del viento en m/s"
+        tests:
+          - not_null

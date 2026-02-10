@@ -1,0 +1,39 @@
+version: 2
+
+sources:
+  - name: weather_data_source
+    database: weather        
+    schema: raw              
+    description: "Datos meteorológicos crudos obtenidos de la API OpenWeather para Girona y Roses"
+    tables:
+      - name: weather_data   
+        description: "Tabla con los datos raw de clima"
+        columns:
+          - name: id
+            description: "Identificador único de cada registro"
+          - name: city
+            description: "Nombre de la ciudad"
+          - name: city_lat
+            description: "Latitud de la ciudad"
+          - name: city_lon
+            description: "Longitud de la ciudad"
+          - name: weather_timestamp
+            description: "Momento de la medición"
+          - name: temperature
+            description: "Temperatura en grados Celsius"
+          - name: feels_like
+            description: "Sensación térmica"
+          - name: humidity
+            description: "Humedad relativa en porcentaje"
+          - name: pressure
+            description: "Presión atmosférica en hPa"
+          - name: wind_speed
+            description: "Velocidad del viento en m/s"
+          - name: wind_deg
+            description: "Dirección del viento en grados"
+          - name: weather_main
+            description: "Condición principal del clima"
+          - name: weather_description
+            description: "Descripción detallada del clima"
+          - name: ingested_at
+            description: "Momento de la ingestión en la base de datos"
