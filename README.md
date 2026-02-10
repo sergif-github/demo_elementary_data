@@ -1,6 +1,3 @@
-Aquí tienes un README actualizado y organizado con lo que has hecho hasta ahora, dejando espacio para la integración de Elementary más adelante:
-
-````markdown
 # Elementary Data Project
 
 ## Introducción
