@@ -126,7 +126,7 @@ Se añaden valores erróneos para probar la detección de anomalías:
 Datos de la tabla original con filas afectadas por valores nulos y atípicos:
 
 <p align="center"> 
-  <img src="./imagenes/Captura_6.png"/> 
+  <img src="./imagenes/Captura_7.png"/> 
 </p>
 
 ## Visualización de errores en Elementary
