@@ -30,13 +30,30 @@ pip install dbt-postgres elementary-data
 
 ### Estructura del proyecto dbt
 
-El proyecto contiene:
+El proyecto contiene los siguientes archivos principales:
 
 * **models/sources.yml**: definición de la fuente `barcelona_temp_source` apuntando a `temp_db.public.barcelona_monthly_temp`.
+  *Tests añadidos:* `not_null` y `unique` sobre la columna `any_year`.
+
 * **models/staging/stg_barcelona_temp.sql**: modelo de staging que limpia y selecciona las columnas necesarias.
-* **models/staging/stg_barcelona_temp.yml**: esquema de staging con tests de integridad.
-* **models/marts/agg_barcelona_temp.sql**: modelo que genera métricas agregadas.
+
+* **models/staging/stg_barcelona_temp.yml**: esquema de staging con tests de integridad de datos.
+  *Tests añadidos por columna:*
+
+  * `any_year`: `not_null`, `unique`
+  * Cada columna mensual (`temp_gener`, `temp_febrer`, etc.): `not_null` y rango aceptable con `dbt_utils.accepted_range` (-20 a 50)
+    Además, se añadió un test de unicidad a nivel de modelo para asegurar una fila por año (`unique_combination_of_columns`).
+
+* **models/marts/agg_barcelona_temp.sql**: modelo que genera métricas agregadas, incluyendo la temperatura media anual calculada a partir de los 12 meses.
+
 * **models/marts/agg_barcelona_temp.yml**: esquema del modelo de métricas agregadas con tests de integridad.
+  *Tests añadidos:*
+
+  * `any_year`: `not_null`, `unique`
+  * `temp_media_anual`: `not_null` y rango aceptable con `dbt_utils.accepted_range` (5 a 30)
+  * Columnas mensuales: `not_null`
+  * Test de unicidad a nivel de modelo para `any_year`
+  * Para mantener la integridad de los datos se puede usar un test de relaciones entre `agg` y `stg` (opcional según flujo).
 
 ## Integración de Elementary con dbt
 
@@ -56,7 +73,7 @@ packages:
 dbt deps
 ```
 
-3. Configurar el esquema donde Elementary almacenará sus métricas en **dbt_project.yml** y activar flags necesarios.
+3. Configurar el esquema donde Elementary almacenará sus métricas en **dbt_project.yml** y activar flags necesarios:
 
 ```yaml
   elementary:
@@ -71,10 +88,19 @@ dbt deps
 dbt run-operation elementary.generate_elementary_cli_profile --profiles-dir C:\Users\{user}\.dbt
 ```
 
-* Nota Instalar Elementary de forma específica si fuera necesario para otra plataforma (Postgres no requiere este paso):
-  ```bash
-  pip install 'elementary-data[bigquery]'
-  ```
+*Nota:* Instalar Elementary de forma específica si fuera necesario para otra plataforma (Postgres no requiere este paso):
+
+```bash
+pip install 'elementary-data[bigquery]'
+```
+
+### Cómo funciona Elementary
+
+Elementary utiliza los artifacts generados durante la ejecución de dbt para:
+
+* Recopilar metadata de modelos y tests.
+* Evaluar resultados de los tests de calidad.
+* Generar reportes de observabilidad y alertas sobre anomalías.
 
 ## Datos y dashboards sin errores
 
@@ -109,7 +135,7 @@ Ejecutando `dbt run --select elementary`:
   <img src="./imagenes/Captura_2.png"/> 
 </p>
 
-Ejecutando `edr report` Dashboard de Elementary con todos los tests pasados:
+Ejecutando `edr report`, el dashboard de Elementary con todos los tests pasados:
 
 <p align="center"> 
   <img src="./imagenes/Captura_0.png"/> 
@@ -169,5 +195,4 @@ Este flujo muestra cómo Elementary puede integrarse con dbt para:
 * Monitorear la calidad de los datos automáticamente.
 * Detectar anomalías antes de impactar a usuarios.
 * Visualizar el estado de los tests de manera centralizada.
-
-
+¡
