@@ -181,12 +181,6 @@ Tests de la vista `agg` que no pasaron:
   <img src="./imagenes/Captura_11.png"/> 
 </p>
 
-Este flujo muestra cómo Elementary puede integrarse con dbt para:
-
-* Monitorear la calidad de los datos automáticamente.
-* Detectar anomalías antes de impactar a usuarios.
-* Visualizar el estado de los tests de manera centralizada.
-
 ## Conclusiones sobre la ejecución local
 
 Hemos visto que, en local, Elementary utiliza las métricas generadas por dbt para monitorear la integridad de los datos y ejecutar los tests definidos. Esto permite validar la calidad de los datos y detectar errores básicos, pero tiene limitaciones: la detección avanzada de anomalías, alertas automáticas, dashboards históricos y análisis de causa raíz requieren un data warehouse en la nube.
