@@ -1,0 +1,87 @@
+version: 2
+
+models:
+  - name: agg_barcelona_temp
+    description: "Métricas anuales de temperatura media en Barcelona"
+
+    # Tests a nivel de modelo
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - any_year      
+
+    columns:
+      - name: any_year
+        description: "Año"
+        tests:
+          - not_null
+          - unique
+
+      - name: temp_media_anual
+        description: "Temperatura media anual calculada a partir de los 12 meses"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 5
+              max_value: 30
+
+      # Columnas mensuales: solo integridad, no lógica
+      - name: temp_gener
+        description: "Temperatura media de enero"
+        tests:
+          - not_null
+
+      - name: temp_febrer
+        description: "Temperatura media de febrero"
+        tests:
+          - not_null
+
+      - name: temp_marc
+        description: "Temperatura media de marzo"
+        tests:
+          - not_null
+
+      - name: temp_abril
+        description: "Temperatura media de abril"
+        tests:
+          - not_null
+
+      - name: temp_maig
+        description: "Temperatura media de mayo"
+        tests:
+          - not_null
+
+      - name: temp_juny
+        description: "Temperatura media de junio"
+        tests:
+          - not_null
+
+      - name: temp_juliol
+        description: "Temperatura media de julio"
+        tests:
+          - not_null
+
+      - name: temp_agost
+        description: "Temperatura media de agosto"
+        tests:
+          - not_null
+
+      - name: temp_setembre
+        description: "Temperatura media de septiembre"
+        tests:
+          - not_null
+
+      - name: temp_octubre
+        description: "Temperatura media de octubre"
+        tests:
+          - not_null
+
+      - name: temp_novembre
+        description: "Temperatura media de noviembre"
+        tests:
+          - not_null
+
+      - name: temp_desembre
+        description: "Temperatura media de diciembre"
+        tests:
+          - not_null

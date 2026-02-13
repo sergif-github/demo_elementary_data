@@ -2,81 +2,172 @@
 
 ## Introducción
 
-Elementary es una herramienta de *data observability* orientada a equipos de datos que trabajan con pipelines analíticos modernos. Su objetivo principal es ayudar a detectar, monitorear y diagnosticar problemas en los datos antes de que impacten en los usuarios finales, como analistas, científicos de datos o equipos de negocio.
+Elementary es una herramienta de *data observability* que permite monitorear, detectar y diagnosticar problemas en los datos antes de que impacten en los usuarios finales. Se integra directamente con **dbt**, aprovechando sus modelos, tests y metadatos para generar métricas de observabilidad de forma automática.
 
-Elementary se integra directamente con **dbt** y aprovecha sus modelos, tests y metadatos para generar métricas de observabilidad de forma automática. A partir de esta información, permite identificar anomalías en los datos, como cambios inesperados en el volumen, valores nulos, frescura de la información o fallos en los tests.
+Con esta integración, Elementary puede identificar anomalías como cambios inesperados en el volumen de datos, valores nulos, inconsistencias, problemas de frescura o fallos en los tests de dbt. La herramienta está diseñada para trabajar sobre **data warehouses** modernos como Postgres, BigQuery, Snowflake o Databricks, sin necesidad de mover los datos fuera del entorno del cliente.
 
-La herramienta está diseñada para trabajar sobre **data warehouses** modernos como BigQuery, Snowflake, Redshift o Databricks, sin necesidad de mover los datos fuera del entorno del cliente. Elementary almacena y consulta sus métricas directamente en el warehouse, lo que simplifica la arquitectura y reduce costos.
+Elementary también ofrece monitoreo histórico, alertas y análisis de causa raíz, facilitando el mantenimiento y la confiabilidad de los pipelines de datos en producción.
 
-Además, Elementary ofrece capacidades de monitoreo histórico, alertas y análisis de causa raíz, facilitando el mantenimiento y la confiabilidad de los pipelines de datos en producción.
-
-En resumen, Elementary sirve para:
-- Mejorar la calidad y confiabilidad de los datos.
-- Detectar problemas de datos de forma temprana.
-- Proveer visibilidad continua sobre el estado de los pipelines analíticos.
-- Integrarse de forma nativa con dbt y el stack moderno de datos.
+<p align="center"> 
+  <img src="./imagenes/Captura_3.png"/> 
+</p>
 
 ## Configuración del entorno
 
-Crear un entorno virtual:
+Para comenzar, creamos un entorno virtual de Python y lo activamos:
 
 ```bash
 python -m venv .venv
-````
-
-Activar el entorno:
-
-```bash
 .venv\Scripts\activate
 ```
 
-Actualizar pip:
+Actualizamos pip y luego instalamos dbt y Elementary:
 
 ```bash
 pip install --upgrade pip
-```
-
-Instalar dbt y Elementary:
-
-```bash
 pip install dbt-postgres elementary-data
 ```
 
-## Estructura del proyecto dbt
+### Estructura del proyecto dbt
 
-* **models/sources.yml**: Definición de la fuente `weather_data` apuntando a la base de datos y esquema correctos (`weather.raw.weather_data`).
-* **models/staging/stg_weather_data.sql**: Modelo de staging que limpia y selecciona las columnas necesarias de los datos crudos.
-* **models/staging/stg_weather_data.yml**: Esquema de staging con tests de integridad (`not_null`, `unique`).
-* **models/marts/weather_metrics.sql**: Modelo que genera métricas agregadas por ciudad y hora.
-* **models/marts/weather_metrics.yml**: Esquema del modelo de métricas agregadas.
+El proyecto contiene:
 
-## Comandos dbt usados
+* **models/sources.yml**: definición de la fuente `barcelona_temp_source` apuntando a `temp_db.public.barcelona_monthly_temp`.
+* **models/staging/stg_barcelona_temp.sql**: modelo de staging que limpia y selecciona las columnas necesarias.
+* **models/staging/stg_barcelona_temp.yml**: esquema de staging con tests de integridad.
+* **models/marts/agg_barcelona_temp.sql**: modelo que genera métricas agregadas.
+* **models/marts/agg_barcelona_temp.yml**: esquema del modelo de métricas agregadas con tests de integridad.
 
-Ejecutar los modelos:
+## Integración de Elementary con dbt
+
+Para integrar Elementary:
+
+1. Añadir a **packages.yml**:
+
+```yaml
+packages:
+  - package: elementary-data/elementary
+    version: 0.15.2
+```
+
+2. Instalar dependencias:
+
+```bash
+dbt deps
+```
+
+3. Configurar el esquema donde Elementary almacenará sus métricas en **dbt_project.yml** y activar flags necesarios.
+
+```yaml
+  elementary:
+    +schema: "elementary"
+```
+
+4. Conectar Elementary al warehouse configurando **profiles.yml**. Esto permite que Elementary lea los artifacts de dbt (`manifest.json`, `run_results.json`) y genere métricas de observabilidad sin mover los datos.
+
+5. Generar el perfil de Elementary:
+
+```bash
+dbt run-operation elementary.generate_elementary_cli_profile --profiles-dir C:\Users\{user}\.dbt
+```
+
+* Nota Instalar Elementary de forma específica si fuera necesario para otra plataforma (Postgres no requiere este paso):
+  ```bash
+  pip install 'elementary-data[bigquery]'
+  ```
+
+## Datos y dashboards sin errores
+
+Después de ejecutar los modelos de dbt:
 
 ```bash
 dbt run
-```
-
-Ejecutar los tests de calidad de datos:
-
-```bash
 dbt test
 ```
 
-Generar la documentación:
+Vista de la tabla y dos views en Postgres:
+
+<p align="center"> 
+  <img src="./imagenes/Captura_1.png"/> 
+</p>
+
+Tabla `stg` en Postgres:
+
+<p align="center"> 
+  <img src="./imagenes/Captura_4.png"/> 
+</p>
+
+Tabla `agg` en Postgres:
+
+<p align="center"> 
+  <img src="./imagenes/Captura_5.png"/> 
+</p>
+
+Ejecutando `dbt run --select elementary`:
+
+<p align="center"> 
+  <img src="./imagenes/Captura_2.png"/> 
+</p>
+
+Ejecutando `edr report` Dashboard de Elementary con todos los tests pasados:
+
+<p align="center"> 
+  <img src="./imagenes/Captura_0.png"/> 
+</p>
+
+## Incorporación de errores
+
+Se añaden valores erróneos para probar la detección de anomalías:
+
+<p align="center"> 
+  <img src="./imagenes/Captura_6.png"/> 
+</p>
+
+Datos de la tabla original con filas afectadas por valores nulos y atípicos:
+
+<p align="center"> 
+  <img src="./imagenes/Captura_6.png"/> 
+</p>
+
+## Visualización de errores en Elementary
+
+Después de añadir los errores, se vuelve a ejecutar:
 
 ```bash
-dbt docs generate
+dbt run
+dbt test
+dbt run --select elementary
+edr report
 ```
 
-Servir la documentación localmente:
+Dashboard de Elementary mostrando los tests en rojo:
 
-```bash
-dbt docs serve
-```
+<p align="center"> 
+  <img src="./imagenes/Captura_8.png"/> 
+</p>
 
-* El proyecto dbt está funcional con los modelos de staging y métricas agregadas.
-* Los tests de integridad y consistencia de datos están implementados y pasan correctamente.
-* La documentación de dbt se genera y puede visualizarse localmente.
-* Preparado para integrar Elementary y empezar a monitorear los modelos y tests de dbt.
+Tests de la tabla source que no pasaron:
+
+<p align="center"> 
+  <img src="./imagenes/Captura_9.png"/> 
+</p>
+
+Tests de la vista `stg` que no pasaron:
+
+<p align="center"> 
+  <img src="./imagenes/Captura_10.png"/> 
+</p>
+
+Tests de la vista `agg` que no pasaron:
+
+<p align="center"> 
+  <img src="./imagenes/Captura_11.png"/> 
+</p>
+
+Este flujo muestra cómo Elementary puede integrarse con dbt para:
+
+* Monitorear la calidad de los datos automáticamente.
+* Detectar anomalías antes de impactar a usuarios.
+* Visualizar el estado de los tests de manera centralizada.
+
+

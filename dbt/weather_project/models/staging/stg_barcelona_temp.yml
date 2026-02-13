@@ -1,0 +1,114 @@
+version: 2
+
+models:
+  - name: stg_barcelona_temp
+    description: "Datos históricos de temperatura media mensual en Barcelona (fuente Open Data BCN)"
+
+    # Asegura 1 fila por año
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - any_year
+
+    columns:
+      - name: any_year
+        description: "Año de la medición"
+        tests:
+          - not_null
+          - unique
+
+      - name: temp_gener
+        description: "Temperatura media en enero"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+
+      - name: temp_febrer
+        description: "Temperatura media en febrero"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+
+      - name: temp_marc
+        description: "Temperatura media en marzo"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+
+      - name: temp_abril
+        description: "Temperatura media en abril"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+
+      - name: temp_maig
+        description: "Temperatura media en mayo"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+
+      - name: temp_juny
+        description: "Temperatura media en junio"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+
+      - name: temp_juliol
+        description: "Temperatura media en julio"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+
+      - name: temp_agost
+        description: "Temperatura media en agosto"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+
+      - name: temp_setembre
+        description: "Temperatura media en septiembre"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+
+      - name: temp_octubre
+        description: "Temperatura media en octubre"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+
+      - name: temp_novembre
+        description: "Temperatura media en noviembre"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50
+
+      - name: temp_desembre
+        description: "Temperatura media en diciembre"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -20
+              max_value: 50

@@ -1,39 +1,83 @@
 version: 2
 
 sources:
-  - name: weather_data_source
-    database: weather        
-    schema: raw              
-    description: "Datos meteorológicos crudos obtenidos de la API OpenWeather para Girona y Roses"
+  - name: barcelona_temp_source
+    database: temp_db
+    schema: public
+    description: "Temperaturas medias mensuales de Barcelona por año"
+
     tables:
-      - name: weather_data   
-        description: "Tabla con los datos raw de clima"
+      - name: barcelona_monthly_temp
+        description: "Tabla con temperaturas medias mensuales históricas"
+
+        # Asegura 1 fila por año
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - any_year
+
         columns:
-          - name: id
-            description: "Identificador único de cada registro"
-          - name: city
-            description: "Nombre de la ciudad"
-          - name: city_lat
-            description: "Latitud de la ciudad"
-          - name: city_lon
-            description: "Longitud de la ciudad"
-          - name: weather_timestamp
-            description: "Momento de la medición"
-          - name: temperature
-            description: "Temperatura en grados Celsius"
-          - name: feels_like
-            description: "Sensación térmica"
-          - name: humidity
-            description: "Humedad relativa en porcentaje"
-          - name: pressure
-            description: "Presión atmosférica en hPa"
-          - name: wind_speed
-            description: "Velocidad del viento en m/s"
-          - name: wind_deg
-            description: "Dirección del viento en grados"
-          - name: weather_main
-            description: "Condición principal del clima"
-          - name: weather_description
-            description: "Descripción detallada del clima"
-          - name: ingested_at
-            description: "Momento de la ingestión en la base de datos"
+          - name: any_year
+            description: "Año de referencia"
+            tests:
+              - not_null
+
+          - name: temp_gener
+            description: "Temperatura media de enero"
+            tests:
+              - not_null
+
+          - name: temp_febrer
+            description: "Temperatura media de febrero"
+            tests:
+              - not_null
+
+          - name: temp_marc
+            description: "Temperatura media de marzo"
+            tests:
+              - not_null
+
+          - name: temp_abril
+            description: "Temperatura media de abril"
+            tests:
+              - not_null
+
+          - name: temp_maig
+            description: "Temperatura media de mayo"
+            tests:
+              - not_null
+
+          - name: temp_juny
+            description: "Temperatura media de junio"
+            tests:
+              - not_null
+
+          - name: temp_juliol
+            description: "Temperatura media de julio"
+            tests:
+              - not_null
+
+          - name: temp_agost
+            description: "Temperatura media de agosto"
+            tests:
+              - not_null
+
+          - name: temp_setembre
+            description: "Temperatura media de septiembre"
+            tests:
+              - not_null
+
+          - name: temp_octubre
+            description: "Temperatura media de octubre"
+            tests:
+              - not_null
+
+          - name: temp_novembre
+            description: "Temperatura media de noviembre"
+            tests:
+              - not_null
+
+          - name: temp_desembre
+            description: "Temperatura media de diciembre"
+            tests:
+              - not_null
