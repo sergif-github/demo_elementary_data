@@ -53,7 +53,6 @@ El proyecto contiene los siguientes archivos principales:
   * `temp_media_anual`: `not_null` y rango aceptable con `dbt_utils.accepted_range` (5 a 30)
   * Columnas mensuales: `not_null`
   * Test de unicidad a nivel de modelo para `any_year`
-  * Para mantener la integridad de los datos se puede usar un test de relaciones entre `agg` y `stg` (opcional según flujo).
 
 ## Integración de Elementary con dbt
 
@@ -93,14 +92,6 @@ dbt run-operation elementary.generate_elementary_cli_profile --profiles-dir C:\U
 ```bash
 pip install 'elementary-data[bigquery]'
 ```
-
-### Cómo funciona Elementary
-
-Elementary utiliza los artifacts generados durante la ejecución de dbt para:
-
-* Recopilar metadata de modelos y tests.
-* Evaluar resultados de los tests de calidad.
-* Generar reportes de observabilidad y alertas sobre anomalías.
 
 ## Datos y dashboards sin errores
 
@@ -195,4 +186,3 @@ Este flujo muestra cómo Elementary puede integrarse con dbt para:
 * Monitorear la calidad de los datos automáticamente.
 * Detectar anomalías antes de impactar a usuarios.
 * Visualizar el estado de los tests de manera centralizada.
-¡
