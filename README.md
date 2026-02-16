@@ -183,6 +183,110 @@ Tests de la vista `agg` que no pasaron:
 
 ## Conclusiones sobre la ejecución local
 
-Hemos visto que, en local, Elementary utiliza las métricas generadas por dbt para monitorear la integridad de los datos y ejecutar los tests definidos. Esto permite validar la calidad de los datos y detectar errores básicos, pero tiene limitaciones: la detección avanzada de anomalías, alertas automáticas, dashboards históricos y análisis de causa raíz requieren un data warehouse en la nube.
+Hemos visto que, en local, **Elementary** utiliza las métricas generadas por dbt para monitorear la integridad de los datos y ejecutar los tests definidos. Esto permite validar la calidad de los datos y detectar errores básicos, pero tiene limitaciones: la detección avanzada de anomalías, alertas automáticas, dashboards históricos y análisis de causa raíz requieren un data warehouse en la nube.
 
-En el siguiente apartado, pasaremos a configurar BigQuery como warehouse en la nube, lo que nos permitirá aprovechar al máximo las capacidades de Elementary y ejecutar un monitoreo de datos completo en producción.
+En el siguiente apartado, pasaremos a configurar **BigQuery** como warehouse en la nube, lo que nos permitirá aprovechar al máximo las capacidades de Elementary y ejecutar un monitoreo de datos completo en producción.
+
+## Migración a Cloud con BigQuery
+
+**Elementary** Cloud ofrece todas las funcionalidades avanzadas, pero requiere acceso a un *data warehouse* público o a una VPC accesible desde internet. Por ello, pasamos a utilizar **BigQuery** como destino.
+
+### 1. Crear los datasets en BigQuery
+
+Creamos dos datasets en nuestro proyecto `spa-datajuniorsprogram-sdb-001`:
+
+* `temp_db`: para almacenar los datos originales.
+* `temp_db_elementary`: para almacenar las métricas y resultados que **Elementary** genera automáticamente.
+
+```bash
+bq mk --dataset --location=europe-southwest1 spa-datajuniorsprogram-sdb-001:temp_db
+bq mk --dataset --location=europe-southwest1 spa-datajuniorsprogram-sdb-001:temp_db_elementary
+```
+
+### 2. Cargar los datos desde Postgres a BigQuery
+
+Exportamos los datos (incluyendo los errores) desde nuestra base local **Postgres** y los cargamos en **BigQuery**:
+
+```bash
+bq load --source_format=CSV --skip_leading_rows=1 \
+spa-datajuniorsprogram-sdb-001:temp_db.barcelona_monthly_temp \
+barcelona_monthly_temp.csv \
+any_year:INTEGER,temp_gener:FLOAT,temp_febrer:FLOAT,temp_marc:FLOAT,temp_abril:FLOAT,temp_maig:FLOAT,temp_juny:FLOAT,temp_juliol:FLOAT,temp_agost:FLOAT,temp_setembre:FLOAT,temp_octubre:FLOAT,temp_novembre:FLOAT,temp_desembre:FLOAT
+```
+
+> Nota: Mediante el comando anterior definimos el esquema de los datos. Además, cambiamos los valores `NULL`  a "vacío" del *CSV* descargado de **Postgres** que aparecían como texto, ya que se interpretan en **BigQuery** como espacios vacíos.
+
+<p align="center"> 
+  <img src="./imagenes/Captura_14.png"/> 
+</p>
+
+### 3. Configurar Elementary para BigQuery
+
+Instalamos la versión de **Elementary** compatible con **BigQuery**:
+
+```bash
+pip install elementary-data[bigquery]
+```
+
+Luego generamos la configuración que indica a **Elementary** dónde almacenar las métricas y cómo conectarse al *warehouse*:
+
+```bash
+dbt run-operation elementary.generate_elementary_cli_profile --profiles-dir C:\Users\sifs\.dbt
+```
+
+### 4. Ajustes en el proyecto dbt
+
+Modificamos `sources.yml` para que las fuentes apunten al proyecto y dataset correctos en **BigQuery**:
+
+```yaml
+#database: temp_db  Postgres
+#schema: public     Postgres
+database: spa-datajuniorsprogram-sdb-001   # proyecto bigquery
+schema: temp_db                             # dataset bigquery
+```
+
+### 5. Ejecutar dbt
+
+Con todo configurado, ejecutamos los comandos habituales para construir los modelos, correr los tests y generar las métricas de **Elementary**:
+
+```bash
+dbt run
+dbt test
+dbt run --select elementary
+```
+
+A partir de aquí, **Elementary** crea automáticamente todas las métricas y dashboards sobre `temp_db_elementary` en **BigQuery**, de forma similar a como lo hacía anteriormente en nuestro contenedor **Postgres** local.
+
+### 6. Elementary Cloud
+
+Finalmente, mediante **Elementary Cloud** conectamos nuestro data warehouse en **BigQuery**. 
+
+<p align="center"> 
+  <img src="./imagenes/Captura_12.png"/> 
+</p>
+
+<p align="center"> 
+  <img src="./imagenes/Captura_13.png"/> 
+</p>
+
+Esto nos permite aprovechar todas las funcionalidades avanzadas que no estaban disponibles en local, incluyendo:
+
+* **Detección automática de anomalías**: identifica valores atípicos y cambios inesperados en los datos.
+* **Alertas automáticas**: notificaciones configurables cuando se detectan problemas en los datos.
+* **Dashboards históricos**: seguimiento de la evolución de métricas y tests a lo largo del tiempo.
+* **Análisis de causa raíz**: ayuda a identificar rápidamente el origen de los problemas en los pipelines de datos.
+* **Colaboración y trazabilidad**: permite que varios usuarios puedan revisar y comentar métricas, tests y resultados de manera centralizada.
+
+De esta manera, **Elementary Cloud** transforma un simple monitoreo de integridad de datos en un sistema completo de *data observability*, listo para entornos de producción.
+
+Comparativa de dashboards:
+
+* **Dashboard Elementary local** (funcionalidades reducidas)
+<p align="center"> 
+  <img src="./imagenes/Captura_0.png"/> 
+</p>
+
+* **Dashboard Elementary Cloud** (todas las funcionalidades disponibles)
+<p align="center"> 
+  <img src="./imagenes/Captura_15.png"/> 
+</p>
