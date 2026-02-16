@@ -241,8 +241,8 @@ Modificamos `sources.yml` para que las fuentes apunten al proyecto y dataset cor
 ```yaml
 #database: temp_db  Postgres
 #schema: public     Postgres
-database: spa-datajuniorsprogram-sdb-001   # proyecto bigquery
-schema: temp_db                             # dataset bigquery
+database: {gcp_project}   
+schema: {bigquery_dataset}                           
 ```
 
 ### 5. Ejecutar dbt
