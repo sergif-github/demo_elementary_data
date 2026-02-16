@@ -4,7 +4,7 @@
 
 Elementary es una herramienta de *data observability* que permite monitorear, detectar y diagnosticar problemas en los datos antes de que impacten en los usuarios finales. Se integra directamente con **dbt**, aprovechando sus modelos, tests y metadatos para generar métricas de observabilidad de forma automática.
 
-Con esta integración, Elementary puede identificar anomalías como cambios inesperados en el volumen de datos, valores nulos, inconsistencias, problemas de frescura o fallos en los tests de dbt. La herramienta está diseñada para trabajar sobre **data warehouses** modernos como Postgres, BigQuery, Snowflake o Databricks, sin necesidad de mover los datos fuera del entorno del cliente.
+Con esta integración, Elementary puede identificar anomalías como cambios inesperados en el volumen de datos, valores nulos, inconsistencias, problemas de frescura o fallos en los tests de **dbt**. La herramienta está diseñada para trabajar sobre **data warehouses** modernos como Postgres, BigQuery, Snowflake o Databricks, sin necesidad de mover los datos fuera del entorno del cliente.
 
 Elementary también ofrece monitoreo histórico, alertas y análisis de causa raíz, facilitando el mantenimiento y la confiabilidad de los pipelines de datos en producción.
 
@@ -21,7 +21,7 @@ python -m venv .venv
 .venv\Scripts\activate
 ```
 
-Actualizamos pip y luego instalamos dbt y Elementary:
+Actualizamos pip y luego instalamos **dbt** y **Elementary**:
 
 ```bash
 pip install --upgrade pip
@@ -56,7 +56,7 @@ El proyecto contiene los siguientes archivos principales:
 
 ## Integración de Elementary con dbt
 
-Para integrar Elementary:
+Para integrar **Elementary**:
 
 1. Añadir a **packages.yml**:
 
@@ -72,16 +72,16 @@ packages:
 dbt deps
 ```
 
-3. Configurar el esquema donde Elementary almacenará sus métricas en **dbt_project.yml** y activar flags necesarios:
+3. Configurar el esquema donde **Elementary** almacenará sus métricas en **dbt_project.yml** y activar flags necesarios:
 
 ```yaml
   elementary:
     +schema: "elementary"
 ```
 
-4. Conectar Elementary al warehouse configurando **profiles.yml**. Esto permite que Elementary lea los artifacts de dbt (`manifest.json`, `run_results.json`) y genere métricas de observabilidad sin mover los datos.
+4. Conectar **Elementary** al warehouse configurando **profiles.yml**. Esto permite que **Elementary** lea los artifacts de dbt (`manifest.json`, `run_results.json`) y genere métricas de observabilidad sin mover los datos.
 
-5. Generar el perfil de Elementary:
+5. Generar el perfil de **Elementary**:
 
 ```bash
 dbt run-operation elementary.generate_elementary_cli_profile --profiles-dir C:\Users\{user}\.dbt
@@ -95,26 +95,26 @@ pip install 'elementary-data[bigquery]'
 
 ## Datos y dashboards sin errores
 
-Después de ejecutar los modelos de dbt:
+Después de ejecutar los modelos de **dbt**:
 
 ```bash
 dbt run
 dbt test
 ```
 
-Vista de la tabla y dos views en Postgres:
+Vista de la tabla y dos views en **Postgres**:
 
 <p align="center"> 
   <img src="./imagenes/Captura_1.png"/> 
 </p>
 
-Tabla `stg` en Postgres:
+Tabla `stg` en **Postgres**:
 
 <p align="center"> 
   <img src="./imagenes/Captura_4.png"/> 
 </p>
 
-Tabla `agg` en Postgres:
+Tabla `agg` en **Postgres**:
 
 <p align="center"> 
   <img src="./imagenes/Captura_5.png"/> 
@@ -126,7 +126,7 @@ Ejecutando `dbt run --select elementary`:
   <img src="./imagenes/Captura_2.png"/> 
 </p>
 
-Ejecutando `edr report`, el dashboard de Elementary con todos los tests pasados:
+Ejecutando `edr report`, el dashboard de **Elementary** con todos los tests pasados:
 
 <p align="center"> 
   <img src="./imagenes/Captura_0.png"/> 
@@ -157,7 +157,7 @@ dbt run --select elementary
 edr report
 ```
 
-Dashboard de Elementary mostrando los tests en rojo:
+Dashboard de **Elementary** mostrando los tests en rojo:
 
 <p align="center"> 
   <img src="./imagenes/Captura_8.png"/> 
@@ -183,24 +183,24 @@ Tests de la vista `agg` que no pasaron:
 
 ## Conclusiones sobre la ejecución local
 
-Hemos visto que, en local, **Elementary** utiliza las métricas generadas por dbt para monitorear la integridad de los datos y ejecutar los tests definidos. Esto permite validar la calidad de los datos y detectar errores básicos, pero tiene limitaciones: la detección avanzada de anomalías, alertas automáticas, dashboards históricos y análisis de causa raíz requieren un data warehouse en la nube.
+Hemos visto que, en local, **Elementary** utiliza las métricas generadas por **dbt** para monitorear la integridad de los datos y ejecutar los tests definidos. Esto permite validar la calidad de los datos y detectar errores básicos, pero tiene limitaciones: la detección avanzada de anomalías, alertas automáticas, dashboards históricos y análisis de causa raíz requieren un data warehouse en la nube.
 
-En el siguiente apartado, pasaremos a configurar **BigQuery** como warehouse en la nube, lo que nos permitirá aprovechar al máximo las capacidades de Elementary y ejecutar un monitoreo de datos completo en producción.
+En el siguiente apartado, pasaremos a configurar **BigQuery** como warehouse en la nube, lo que nos permitirá aprovechar al máximo las capacidades de **Elementary** y ejecutar un monitoreo de datos completo en producción.
 
 ## Migración a Cloud con BigQuery
 
-**Elementary** Cloud ofrece todas las funcionalidades avanzadas, pero requiere acceso a un *data warehouse* público o a una VPC accesible desde internet. Por ello, pasamos a utilizar **BigQuery** como destino.
+**Elementary Cloud** ofrece todas las funcionalidades avanzadas, pero requiere acceso a un *data warehouse* público o a una VPC accesible desde internet. Por ello, pasamos a utilizar **BigQuery** como destino.
 
 ### 1. Crear los datasets en BigQuery
 
-Creamos dos datasets en nuestro proyecto `spa-datajuniorsprogram-sdb-001`:
+Creamos dos datasets en nuestro proyecto:
 
 * `temp_db`: para almacenar los datos originales.
 * `temp_db_elementary`: para almacenar las métricas y resultados que **Elementary** genera automáticamente.
 
 ```bash
-bq mk --dataset --location=europe-southwest1 spa-datajuniorsprogram-sdb-001:temp_db
-bq mk --dataset --location=europe-southwest1 spa-datajuniorsprogram-sdb-001:temp_db_elementary
+bq mk --dataset --location={region} {project}
+bq mk --dataset --location={region} {project}
 ```
 
 ### 2. Cargar los datos desde Postgres a BigQuery
@@ -209,7 +209,7 @@ Exportamos los datos (incluyendo los errores) desde nuestra base local **Postgre
 
 ```bash
 bq load --source_format=CSV --skip_leading_rows=1 \
-spa-datajuniorsprogram-sdb-001:temp_db.barcelona_monthly_temp \
+{project}:{database}.{table} \
 barcelona_monthly_temp.csv \
 any_year:INTEGER,temp_gener:FLOAT,temp_febrer:FLOAT,temp_marc:FLOAT,temp_abril:FLOAT,temp_maig:FLOAT,temp_juny:FLOAT,temp_juliol:FLOAT,temp_agost:FLOAT,temp_setembre:FLOAT,temp_octubre:FLOAT,temp_novembre:FLOAT,temp_desembre:FLOAT
 ```
@@ -231,7 +231,7 @@ pip install elementary-data[bigquery]
 Luego generamos la configuración que indica a **Elementary** dónde almacenar las métricas y cómo conectarse al *warehouse*:
 
 ```bash
-dbt run-operation elementary.generate_elementary_cli_profile --profiles-dir C:\Users\sifs\.dbt
+dbt run-operation elementary.generate_elementary_cli_profile --profiles-dir C:\Users\{user}\.dbt
 ```
 
 ### 4. Ajustes en el proyecto dbt
@@ -271,11 +271,14 @@ Finalmente, mediante **Elementary Cloud** conectamos nuestro data warehouse en *
 
 Esto nos permite aprovechar todas las funcionalidades avanzadas que no estaban disponibles en local, incluyendo:
 
-* **Detección automática de anomalías**: identifica valores atípicos y cambios inesperados en los datos.
-* **Alertas automáticas**: notificaciones configurables cuando se detectan problemas en los datos.
-* **Dashboards históricos**: seguimiento de la evolución de métricas y tests a lo largo del tiempo.
-* **Análisis de causa raíz**: ayuda a identificar rápidamente el origen de los problemas en los pipelines de datos.
-* **Colaboración y trazabilidad**: permite que varios usuarios puedan revisar y comentar métricas, tests y resultados de manera centralizada.
+* **Colaboración y trazabilidad**: permite que varios usuarios revisen y comenten métricas, tests y resultados de manera centralizada.
+* **Data Health**: visión completa del estado de la calidad de los datos de todos los pipelines.
+* **Catalog**: inventario centralizado de todos los modelos, columnas y tablas con sus metadatos.
+* **Incidents**: registro y seguimiento de incidencias detectadas en los datos.
+* **Test Configuration**: gestión centralizada de los tests y métricas aplicadas a los datos.
+* **Environments**: soporte para múltiples entornos (desarrollo, staging, producción) y su monitorización individual.
+* **Alert Rules**: reglas configurables para recibir notificaciones automáticas cuando se incumplen criterios de calidad.
+* **Pull Requests**: integración con flujos de trabajo colaborativos, permitiendo revisar cambios y métricas antes de desplegar.
 
 De esta manera, **Elementary Cloud** transforma un simple monitoreo de integridad de datos en un sistema completo de *data observability*, listo para entornos de producción.
 
@@ -290,3 +293,7 @@ Comparativa de dashboards:
 <p align="center"> 
   <img src="./imagenes/Captura_15.png"/> 
 </p>
+
+## Conclusiones sobre la ejecución cloud
+
+Al conectar **Elementary** a **BigQuery** y utilizar **Elementary Cloud**, conseguimos acceder a todas las funcionalidades avanzadas de observabilidad de datos, como detección automática de anomalías, alertas configurables, dashboards históricos, análisis de causa raíz o colaboración centralizada. Esto convierte la monitorización de datos en un sistema completo y listo para producción. Sin embargo, al depender de un servicio externo, no tenemos control total sobre los datos y su seguridad, lo que puede ser un inconveniente en entornos que manejan información sensible. Por ello, aunque **Elementary Cloud** potencia enormemente la observabilidad, en algunos casos un entorno local con un warehouse propio puede ser suficiente para validar la calidad de los datos sin comprometer el control interno.
